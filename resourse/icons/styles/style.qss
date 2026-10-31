@@ -1,0 +1,336 @@
+/* ========================================
+   VIEWS / LOGIN
+   ======================================== */
+
+/* VENTANA PRINCIPAL */
+QWidget#loginWindow {
+    background-color: #F4F7FB;
+}
+
+/* LOGO */
+QLabel#logo {
+    background-color: #0F4C81;
+    color: white;
+
+    min-width: 70px;
+    max-width: 70px;
+
+    min-height: 70px;
+    max-height: 70px;
+
+    border-radius: 35px;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    qproperty-alignment: AlignCenter;
+}
+
+/* TÍTULO */
+QLabel#titulo {
+    color: #172033;
+
+    font-size: 27px;
+    font-weight: bold;
+
+    margin-top: 15px;
+}
+
+/* DESCRIPCIÓN */
+QLabel#descripcion {
+    color: #687386;
+
+    font-size: 14px;
+
+    margin-top: 5px;
+}
+
+/* TARJETAS DE LOGIN */
+QFrame#loginCard {
+    background-color: white;
+
+    border: 1px solid #E1E7EF;
+    border-radius: 15px;
+
+    min-width: 400px;
+    max-width: 400px;
+}
+
+/* SUBTÍTULO */
+QLabel#subtitulo {
+    color: #172033;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* MENSAJE */
+QLabel#mensaje {
+    color: #7A8494;
+
+    font-size: 13px;
+}
+
+/* ETIQUETAS DEL FORMULARIO */
+QFormLayout QLabel {
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* CAMPOS GENERALES */
+QLineEdit, QComboBox, QTextEdit {
+    background-color: #F8FAFC;
+
+    color: #1F2937;
+
+    border: 1px solid #D6DDE7;
+    border-radius: 8px;
+
+    padding: 8px 11px;
+
+    font-size: 14px;
+}
+
+QLineEdit:focus, QComboBox:focus, QTextEdit:focus {
+    background-color: white;
+
+    border: 2px solid #2563EB;
+}
+
+/* BOTÓN LOGIN */
+QPushButton#btnLogin {
+    background-color: #2563EB;
+
+    color: white;
+
+    border: none;
+    border-radius: 8px;
+
+    padding: 12px;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+QPushButton#btnLogin:hover {
+    background-color: #1D4ED8;
+}
+
+QPushButton#btnLogin:pressed {
+    background-color: #1E40AF;
+}
+
+/* FOOTER */
+QLabel#footer {
+    color: #9AA3B2;
+
+    font-size: 11px;
+}
+
+
+/* =========================================
+   DASHBOARD
+   ========================================= */
+
+QWidget#dashboardView {
+    background-color: #F4F7FB;
+}
+
+/* TÍTULO */
+QLabel#dashboardTitle {
+    color: #172033;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+QLabel#dashboardSubtitle {
+    color: #687386;
+    font-size: 14px;
+}
+
+/* TARJETAS */
+QFrame#dashboardCard {
+    background-color: white;
+
+    border: 1px solid #E1E7EF;
+    border-radius: 12px;
+
+    min-height: 100px;
+}
+
+QLabel#cardTitle {
+    color: #687386;
+    font-size: 13px;
+}
+
+QLabel#cardValue {
+    color: #0F4C81;
+
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* EQUIPOS RECIENTES */
+QFrame#recentCard {
+    background-color: white;
+
+    border: 1px solid #E1E7EF;
+    border-radius: 12px;
+
+    padding: 10px;
+}
+
+QLabel#sectionTitle {
+    color: #172033;
+
+    font-size: 18px;
+    font-weight: bold;
+}
+
+QLabel#recentItem {
+    color: #4B5563;
+
+    background-color: #F8FAFC;
+
+    border-radius: 6px;
+
+    padding: 10px;
+}
+
+
+/* ========================================
+   MENÚ LATERAL & BARRA SUPERIOR
+   ======================================== */
+
+QFrame#menuLateral {
+    background-color: #0F4C81;
+}
+
+QLabel#menuTitulo {
+    color: white;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    padding-left: 10px;
+}
+
+QPushButton#menuButton {
+    background-color: transparent;
+
+    color: white;
+
+    border: none;
+    border-radius: 8px;
+
+    text-align: left;
+
+    padding-left: 15px;
+
+    font-size: 14px;
+}
+
+QPushButton#menuButton:hover {
+    background-color: #2563EB;
+}
+
+QPushButton#menuButton:pressed {
+    background-color: #1E40AF;
+}
+
+QPushButton#btnSalir {
+    background-color: transparent;
+
+    color: white;
+
+    border: none;
+
+    text-align: left;
+
+    padding-left: 15px;
+
+    font-size: 14px;
+}
+
+QPushButton#btnSalir:hover {
+    background-color: #DC2626;
+
+    border-radius: 8px;
+}
+
+/* BARRA SUPERIOR (TOP BAR) */
+QFrame#topBar {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E1E7EF;
+}
+
+QPushButton#btnToggleMenu {
+    background-color: transparent;
+
+    color: #0F4C81;
+
+    border: 1px solid #D6DDE7;
+    border-radius: 6px;
+
+    padding: 4px 10px;
+
+    font-size: 16px;
+    font-weight: bold;
+}
+
+QPushButton#btnToggleMenu:hover {
+    background-color: #F8FAFC;
+    border-color: #2563EB;
+}
+
+
+/* ========================================
+   SECCIONES Y TABLAS (CLIENTES, EQUIPOS, ETC.)
+   ======================================== */
+
+QGroupBox {
+    font-weight: bold;
+    font-size: 14px;
+    color: #172033;
+
+    border: 1px solid #E1E7EF;
+    border-radius: 10px;
+
+    margin-top: 10px;
+    padding-top: 15px;
+    background-color: white;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 15px;
+    padding: 0 5px;
+}
+
+/* TABLAS */
+
+QHeaderView::section {
+    background-color: #F8FAFC;
+    color: #374151;
+
+    font-weight: bold;
+    font-size: 13px;
+
+    min-height: 38px;
+
+    border-style: solid;
+    border-width: 0px 0px 2px 0px; 
+    border-color: #E1E7EF;
+}
+
+
+QTableWidget {
+    background-color: white;
+    gridline-color: #F1F5F9;
+    font-size: 13px;
+    border: 1px solid #E1E7EF;
+    border-radius: 6px;
+}
+
