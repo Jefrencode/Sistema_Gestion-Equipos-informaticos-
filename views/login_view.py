@@ -1,174 +1,392 @@
-from PySide6.QtCore import Qt
+from pathlib import Path
 
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QWidget,
     QLabel,
     QLineEdit,
     QPushButton,
-    QFormLayout,
     QVBoxLayout,
-    QFrame,
     QHBoxLayout,
+    QFrame,
+    QSizePolicy,
     QMessageBox
 )
 
+from controllers.auth_controller import AuthController
+
+
+class ImagenLogin(QLabel):
+    """Imagen adaptable al tamaño de su contenedor."""
+
+    def __init__(self, ruta_imagen):
+        super().__init__()
+
+        self.setObjectName("loginImagen")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setMinimumHeight(300)
+
+        self.imagen_original = QPixmap(str(ruta_imagen))
+
+        if self.imagen_original.isNull():
+            self.setText("GESTIÓN DE EQUIPOS\nINFORMÁTICOS")
+        else:
+            self.actualizar_imagen()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.actualizar_imagen()
+
+    def actualizar_imagen(self):
+        if self.imagen_original.isNull():
+            return
+
+        if self.width() <= 0 or self.height() <= 0:
+            return
+
+        imagen = self.imagen_original.scaled(
+            self.size(),
+            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+            Qt.TransformationMode.SmoothTransformation
+        )
+
+        self.setPixmap(imagen)
 
 
 class LoginView(QWidget):
 
-    def __init__(self,dashboard):
+    login_exitoso = Signal(dict)
+
+    def __init__(self):
         super().__init__()
 
-        self.dashboard = dashboard
+        self.auth_controller = AuthController()
+
         self.crear_interfaz()
-        self.btn_login.clicked.connect(self.iniciar_sesion)
+        self.conectar_eventos()
 
-    def iniciar_sesion(self):
-
-        usuario = self.usuario.text()
-        contrasena = self.contrasena.text()
-
-        if usuario == "admin" and contrasena == "1234":
-
-            self.hide()
-            self.dashboard.show()
-
-        else:
-            QMessageBox.warning(self,"Error"," El usuario y la contraseña es incorrecta.")
+    # ==========================================
+    # INTERFAZ
+    # ==========================================
 
     def crear_interfaz(self):
 
-        # Configuración de la ventana
         self.setObjectName("loginWindow")
         self.setWindowTitle("Sistema de Gestión de Equipos")
         self.setMinimumSize(900, 600)
 
-        # CONTENEDOR PRINCIPAL
-        layout_principal = QVBoxLayout()
-        layout_principal.setContentsMargins(30, 30, 30, 30)
+        # Layout principal
+        layout_principal = QHBoxLayout(self)
+        layout_principal.setContentsMargins(0, 0, 0, 0)
+        layout_principal.setSpacing(0)
 
-        # Espaciado superior
-        layout_principal.addStretch()
+        # ======================================
+        # PANEL IZQUIERDO
+        # ======================================
 
+        self.panel_izquierdo = QFrame()
+        self.panel_izquierdo.setObjectName("loginPanelIzquierdo")
 
-        # TÍTULO
-        self.lbl_titulo = QLabel("Sistema de Gestión de Equipos")
-        self.lbl_titulo.setObjectName("titulo")
-        layout_titulo = QHBoxLayout()
-        layout_titulo.addStretch()
-        layout_titulo.addWidget(self.lbl_titulo)
-        layout_titulo.addStretch()
+        layout_izquierdo = QVBoxLayout(self.panel_izquierdo)
+        layout_izquierdo.setContentsMargins(35, 35, 35, 35)
+        layout_izquierdo.setSpacing(18)
 
-        layout_principal.addLayout(layout_titulo)
+        self.lbl_marca = QLabel("GESTIÓN DE EQUIPOS")
+        self.lbl_marca.setObjectName("loginMarca")
 
-        # DESCRIPCIÓN
+        self.lbl_frase = QLabel(
+            "Tecnología, diagnóstico y mantenimiento"
+        )
+        self.lbl_frase.setObjectName("loginFrase")
+        self.lbl_frase.setWordWrap(True)
 
-        self.lbl_descripcion = QLabel("Diagnóstico, reparación y mantenimiento")
+        # Ruta de imagen independiente del directorio
+        # desde donde se ejecute main.py.
+        ruta_proyecto = Path(__file__).resolve().parent.parent
 
-        self.lbl_descripcion.setObjectName("descripcion")
+        ruta_imagen = (
+            ruta_proyecto
+            / "resourse"
+            / "images"
+            / "login_background.png"
+        )
 
-        layout_descripcion = QHBoxLayout()
-        layout_descripcion.addStretch()
-        layout_descripcion.addWidget(self.lbl_descripcion)
-        layout_descripcion.addStretch()
+        self.imagen = ImagenLogin(ruta_imagen)
+        self.imagen.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding
+        )
 
-        layout_principal.addLayout(layout_descripcion)
+        self.lbl_descripcion_imagen = QLabel(
+            "Una solución integral para administrar "
+            "los equipos de tu taller."
+        )
+        self.lbl_descripcion_imagen.setObjectName(
+            "loginDescripcionImagen"
+        )
+        self.lbl_descripcion_imagen.setWordWrap(True)
 
-        # Espacio
-        layout_principal.addSpacing(25)
+        layout_izquierdo.addWidget(self.lbl_marca)
+        layout_izquierdo.addWidget(self.lbl_frase)
+        layout_izquierdo.addWidget(self.imagen, 1)
+        layout_izquierdo.addWidget(self.lbl_descripcion_imagen)
 
-        # FRAME DEL LOGIN
+        # ======================================
+        # PANEL DERECHO
+        # ======================================
+
+        self.panel_derecho = QFrame()
+        self.panel_derecho.setObjectName("loginPanelDerecho")
+
+        layout_derecho = QVBoxLayout(self.panel_derecho)
+        layout_derecho.setContentsMargins(35, 35, 35, 35)
+        layout_derecho.setSpacing(15)
+
+        layout_derecho.addStretch()
+
         self.frame_login = QFrame()
         self.frame_login.setObjectName("loginCard")
+        self.frame_login.setMaximumWidth(480)
 
-        layout_frame = QVBoxLayout()
+        layout_frame = QVBoxLayout(self.frame_login)
+        layout_frame.setContentsMargins(38, 40, 38, 40)
+        layout_frame.setSpacing(14)
 
-        layout_frame.setContentsMargins(35, 30, 35, 35)
+        # Icono superior
+        self.lbl_icono = QLabel("")
+        self.lbl_icono.setObjectName("loginIcono")
+        self.lbl_icono.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # SUBTÍTULO
+        # Encabezado
+        self.lbl_titulo = QLabel("Bienvenido")
+        self.lbl_titulo.setObjectName("titulo")
+        self.lbl_titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.lbl_descripcion = QLabel(
+            "Sistema de Gestión de Equipos"
+        )
+        self.lbl_descripcion.setObjectName("descripcion")
+        self.lbl_descripcion.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+        self.lbl_descripcion.setWordWrap(True)
+
         self.lbl_subtitulo = QLabel("Iniciar sesión")
-
         self.lbl_subtitulo.setObjectName("subtitulo")
 
-        layout_frame.addWidget(self.lbl_subtitulo)
-
-        self.lbl_mensaje = QLabel("Ingrese sus credenciales para continuar")
-
+        self.lbl_mensaje = QLabel(
+            "Ingresa tus credenciales para continuar"
+        )
         self.lbl_mensaje.setObjectName("mensaje")
+        self.lbl_mensaje.setWordWrap(True)
 
+        layout_frame.addWidget(self.lbl_icono)
+        layout_frame.addWidget(self.lbl_titulo)
+        layout_frame.addWidget(self.lbl_descripcion)
+        layout_frame.addSpacing(22)
+        layout_frame.addWidget(self.lbl_subtitulo)
         layout_frame.addWidget(self.lbl_mensaje)
+        layout_frame.addSpacing(12)
 
-        layout_frame.addSpacing(20)
+        # ======================================
+        # USUARIO
+        # ======================================
 
-
-        # CAMPOS
-
+        self.lbl_usuario = QLabel("Usuario")
+        self.lbl_usuario.setObjectName("loginLabel")
 
         self.usuario = QLineEdit()
-
         self.usuario.setObjectName("campoUsuario")
+        self.usuario.setPlaceholderText("Ingresa tu usuario")
+        self.usuario.setMaxLength(60)
+        self.usuario.setClearButtonEnabled(True)
+        self.usuario.setMinimumHeight(48)
 
-        self.usuario.setPlaceholderText("Ingrese su usuario")
+        layout_frame.addWidget(self.lbl_usuario)
+        layout_frame.addWidget(self.usuario)
+
+        layout_frame.addSpacing(6)
+
+        # ======================================
+        # CONTRASEÑA
+        # ======================================
+
+        self.lbl_contrasena = QLabel("Contraseña")
+        self.lbl_contrasena.setObjectName("loginLabel")
 
         self.contrasena = QLineEdit()
-
         self.contrasena.setObjectName("campoContrasena")
+        self.contrasena.setPlaceholderText(
+            "Ingresa tu contraseña"
+        )
+        self.contrasena.setEchoMode(
+            QLineEdit.EchoMode.Password
+        )
+        self.contrasena.setMinimumHeight(48)
 
-        self.contrasena.setPlaceholderText("Ingrese su contraseña")
+        self.btn_mostrar = QPushButton("Mostrar")
+        self.btn_mostrar.setObjectName("btnMostrarPassword")
+        self.btn_mostrar.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
 
-        self.contrasena.setEchoMode(QLineEdit.Password)
+        layout_password = QHBoxLayout()
+        layout_password.setSpacing(8)
+        layout_password.addWidget(self.contrasena, 1)
+        layout_password.addWidget(self.btn_mostrar)
 
-        # FORMULARIO
-        formulario = QFormLayout()
+        layout_frame.addWidget(self.lbl_contrasena)
+        layout_frame.addLayout(layout_password)
 
-        formulario.setVerticalSpacing(15)
+        layout_frame.addSpacing(18)
 
-        formulario.addRow("Usuario",self.usuario)
-
-        formulario.addRow("Contraseña",self.contrasena)
-
-        layout_frame.addLayout(formulario)
-
-        layout_frame.addSpacing(20)
-
-
-        # BOTÓN
+        # ======================================
+        # BOTÓN DE LOGIN
+        # ======================================
 
         self.btn_login = QPushButton("Iniciar sesión")
-
         self.btn_login.setObjectName("btnLogin")
-
-        self.btn_login.setCursor(Qt.PointingHandCursor)
+        self.btn_login.setMinimumHeight(50)
+        self.btn_login.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
 
         layout_frame.addWidget(self.btn_login)
 
-        # TEXTO INFERIOR
-        self.lbl_footer = QLabel("Acceso exclusivo para personal autorizado" )
+        layout_frame.addSpacing(12)
 
+        # Pie
+        self.lbl_footer = QLabel(
+            "Acceso exclusivo para personal autorizado"
+        )
         self.lbl_footer.setObjectName("footer")
+        self.lbl_footer.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+        self.lbl_footer.setWordWrap(True)
 
-        layout_footer = QHBoxLayout()
-        layout_footer.addStretch()
-        layout_footer.addWidget(self.lbl_footer)
-        layout_footer.addStretch()
+        layout_frame.addWidget(self.lbl_footer)
 
-        layout_frame.addSpacing(15)
-        layout_frame.addLayout(layout_footer)
+        # Centrar tarjeta horizontalmente
+        layout_tarjeta = QHBoxLayout()
+        layout_tarjeta.addStretch()
+        layout_tarjeta.addWidget(self.frame_login, 1)
+        layout_tarjeta.addStretch()
 
-        self.frame_login.setLayout(layout_frame)
+        layout_derecho.addLayout(layout_tarjeta)
 
-        # CENTRAR TARJETA
+        layout_derecho.addStretch()
 
-        layout_card = QHBoxLayout()
+        # ======================================
+        # DISTRIBUCIÓN GENERAL
+        # ======================================
 
-        layout_card.addStretch()
-        layout_card.addWidget(self.frame_login)
-        layout_card.addStretch()
+        layout_principal.addWidget(
+            self.panel_izquierdo, 1
+        )
+        layout_principal.addWidget(
+            self.panel_derecho, 1
+        )
 
-        layout_principal.addLayout(layout_card)
+        self.usuario.setFocus()
 
-        # Espacio inferior
-        layout_principal.addStretch()
+    # ==========================================
+    # EVENTOS
+    # ==========================================
 
-        self.setLayout(layout_principal)
+    def conectar_eventos(self):
 
+        self.btn_login.clicked.connect(
+            self.iniciar_sesion
+        )
+
+        self.contrasena.returnPressed.connect(
+            self.iniciar_sesion
+        )
+
+        self.btn_mostrar.clicked.connect(
+            self.alternar_contrasena
+        )
+
+    # ==========================================
+    # MOSTRAR / OCULTAR CONTRASEÑA
+    # ==========================================
+
+    def alternar_contrasena(self):
+
+        if self.contrasena.echoMode() == (
+            QLineEdit.EchoMode.Password
+        ):
+            self.contrasena.setEchoMode(
+                QLineEdit.EchoMode.Normal
+            )
+            self.btn_mostrar.setText("Ocultar")
+
+        else:
+            self.contrasena.setEchoMode(
+                QLineEdit.EchoMode.Password
+            )
+            self.btn_mostrar.setText("Mostrar")
+
+    # ==========================================
+    # AUTENTICACIÓN
+    # ==========================================
+
+    def iniciar_sesion(self):
+
+        if not self.btn_login.isEnabled():
+            return
+
+        usuario = self.usuario.text().strip()
+        contrasena = self.contrasena.text()
+
+        if not usuario or not contrasena:
+            QMessageBox.warning(
+                self,
+                "Campos obligatorios",
+                "Ingresa tu nombre de usuario y contraseña."
+            )
+            return
+
+        self.btn_login.setEnabled(False)
+
+        try:
+            usuario_autenticado = (
+                self.auth_controller.iniciar_sesion(
+                    usuario,
+                    contrasena
+                )
+            )
+
+            if usuario_autenticado is None:
+                QMessageBox.warning(
+                    self,
+                    "Acceso denegado",
+                    "El usuario o la contraseña son "
+                    "incorrectos, o la cuenta está desactivada."
+                )
+
+                self.contrasena.clear()
+                self.contrasena.setFocus()
+                return
+
+            self.contrasena.clear()
+            self.usuario.clear()
+
+            self.login_exitoso.emit(
+                usuario_autenticado
+            )
+
+        except Exception as error:
+            QMessageBox.critical(
+                self,
+                "Error de autenticación",
+                "No fue posible verificar las credenciales.\n"
+                "Comprueba la conexión con MySQL."
+            )
+
+            print(f"Error al iniciar sesión: {error}")
+
+        finally:
+            self.btn_login.setEnabled(True)
